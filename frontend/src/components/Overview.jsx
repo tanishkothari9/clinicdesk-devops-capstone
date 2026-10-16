@@ -82,7 +82,11 @@ export const Overview = ({ stats, appointments, loaded, loading, onNew, onRefres
       <PageHeader
         eyebrow={greeting(now)}
         title={formatLongDate(now)}
-        subtitle="Here is how the clinic is running today."
+        subtitle={
+          stillToSee > 0
+            ? `${stillToSee} ${stillToSee === 1 ? 'patient' : 'patients'} still to be seen today.`
+            : 'Everyone booked for today has been seen.'
+        }
         actions={
           <>
             <RefreshButton onClick={onRefresh} busy={loading} />
