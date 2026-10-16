@@ -16,7 +16,11 @@ RUN apt-get update \
     && useradd --create-home --uid 10001 appuser
 
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# pip is only needed at build time. Its vendored urllib3/msgpack/setuptools carry
+# HIGH CVEs (found by Trivy), so remove it from the runtime image entirely.
+RUN pip install -r requirements.txt \
+    && python -m pip uninstall -y pip \
+    && find / -xdev -path /proc -prune -o -type d -name "setuptools*" -path "*site-packages*" -prune -exec rm -rf {} +
 
 COPY alembic.ini entrypoint.sh ./
 COPY alembic ./alembic
