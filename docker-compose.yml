@@ -1,0 +1,47 @@
+name: clinicdesk
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: clinicdesk
+      POSTGRES_USER: clinicdesk
+      POSTGRES_PASSWORD: clinicdesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinicdesk -d clinicdesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      args:
+        APP_VERSION: compose-local
+    environment:
+      DATABASE_URL: postgresql+psycopg://clinicdesk:clinicdesk@postgres:5432/clinicdesk
+      CLINIC_TIMEZONE: Asia/Kolkata
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        APP_VERSION: compose-local
+    environment:
+      BACKEND_URL: http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:8080"
+
+volumes:
+  postgres-data:
