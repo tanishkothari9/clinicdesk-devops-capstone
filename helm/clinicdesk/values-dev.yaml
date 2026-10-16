@@ -1,0 +1,10 @@
+# Local cluster (minikube): ingress via the nginx addon, monitoring via kube-prometheus-stack.
+ingress:
+  enabled: true
+  host: clinicdesk.local
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+  grafanaDashboard:
+    enabled: true

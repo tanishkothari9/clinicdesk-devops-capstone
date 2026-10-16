@@ -1,0 +1,23 @@
+# AWS EKS (terraform/): gp2 EBS volumes, ingress-nginx behind an AWS load balancer.
+backend:
+  replicaCount: 2
+frontend:
+  replicaCount: 2
+
+postgres:
+  storage: 5Gi
+  storageClassName: gp2
+
+ingress:
+  enabled: true
+  host: clinicdesk.example.com
+
+hpa:
+  minReplicas: 2
+  maxReplicas: 6
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+  grafanaDashboard:
+    enabled: true

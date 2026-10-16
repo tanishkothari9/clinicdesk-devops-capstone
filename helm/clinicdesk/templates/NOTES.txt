@@ -1,0 +1,11 @@
+ClinicDesk {{ .Values.backend.image.tag | trunc 7 }} is deployed to namespace {{ .Release.Namespace }}.
+
+  kubectl get pods,svc,hpa -n {{ .Release.Namespace }}
+{{- if .Values.ingress.enabled }}
+
+Open http://{{ .Values.ingress.host }}/ (map the host to your ingress controller's address).
+API docs: http://{{ .Values.ingress.host }}/docs
+{{- else }}
+
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "clinicdesk.fullname" . }}-frontend 3000:80
+{{- end }}

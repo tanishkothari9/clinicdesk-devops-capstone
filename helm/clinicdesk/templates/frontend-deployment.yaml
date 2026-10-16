@@ -1,0 +1,47 @@
+{{- $fullname := include "clinicdesk.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullname }}-frontend
+  labels:
+    {{- include "clinicdesk.labels" . | nindent 4 }}
+    {{- include "clinicdesk.selectorLabels" (dict "ctx" . "component" "frontend") | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "clinicdesk.selectorLabels" (dict "ctx" . "component" "frontend") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "clinicdesk.selectorLabels" (dict "ctx" . "component" "frontend") | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+      containers:
+        - name: frontend
+          image: {{ include "clinicdesk.image" (dict "image" .Values.frontend.image "component" "frontend") }}
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.frontend.port }}
+          env:
+            - name: BACKEND_URL
+              value: "http://{{ $fullname }}-backend:{{ .Values.backend.port }}"
+          livenessProbe:
+            httpGet: {path: /nginx-health, port: http}
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: {path: /nginx-health, port: http}
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: ["ALL"]}

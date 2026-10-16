@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: clinicdesk
+  labels:
+    app.kubernetes.io/part-of: clinicdesk
+    environment: dev
