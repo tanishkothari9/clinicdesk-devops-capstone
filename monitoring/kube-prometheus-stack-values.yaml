@@ -1,0 +1,40 @@
+# Prometheus + Grafana for ClinicDesk.
+#   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#   helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+#     -n monitoring --create-namespace -f monitoring/kube-prometheus-stack-values.yaml
+
+prometheus:
+  prometheusSpec:
+    # Scrape every ServiceMonitor in every namespace, not only ones from this release.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    retention: 2d
+    resources:
+      requests: {cpu: 200m, memory: 512Mi}
+
+grafana:
+  enabled: true
+  defaultDashboardsTimezone: browser
+  sidecar:
+    dashboards:
+      enabled: true
+      # The ClinicDesk Helm chart ships its dashboard as a ConfigMap with this label.
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+
+# Not needed for the demo; keeps the stack small enough for a laptop cluster.
+alertmanager:
+  enabled: false
+
+# minikube does not expose these control-plane components to Prometheus,
+# so their targets would only ever show as DOWN.
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
