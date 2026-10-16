@@ -1,0 +1,20 @@
+# Failure drill 1: a Deployment that points at an image tag which was never pushed.
+# Symptom: pod stuck in ErrImagePull / ImagePullBackOff.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clinicdesk-broken-image
+  namespace: clinicdesk
+  labels: {app: clinicdesk-broken-image}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: clinicdesk-broken-image}
+  template:
+    metadata:
+      labels: {app: clinicdesk-broken-image}
+    spec:
+      containers:
+        - name: backend
+          image: ghcr.io/tanishkothari9/clinicdesk-backend:v9.9.9-does-not-exist
+          ports: [{containerPort: 8000}]

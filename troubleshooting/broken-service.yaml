@@ -1,0 +1,14 @@
+# Failure drill 2: a Service whose selector has a typo ("backned").
+# Symptom: the Service exists but has no endpoints, so every request to it fails.
+apiVersion: v1
+kind: Service
+metadata:
+  name: clinicdesk-backend-broken
+  namespace: clinicdesk
+spec:
+  selector:
+    app: clinicdesk-backned
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
