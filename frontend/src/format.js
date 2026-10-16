@@ -99,6 +99,10 @@ export const avatarTone = (seed) => {
   return sum % 6;
 };
 
-export const formatVersion = (version) => (/^\d/.test(version) ? `v${version}` : version);
+// CI stamps builds with the full 40-char commit SHA; show the short form like `git log --oneline`.
+export const formatVersion = (version) => {
+  if (/^[0-9a-f]{40}$/i.test(version)) return version.slice(0, 7);
+  return /^\d+\.\d+/.test(version) ? `v${version}` : version;
+};
 
 export const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
