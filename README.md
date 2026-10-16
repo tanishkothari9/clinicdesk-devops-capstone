@@ -280,11 +280,31 @@ terraform destroy                               # always, after the demo
 
 ![terraform plan](docs/screenshots/24-terraform-plan.png)
 
-<!-- terraform apply, AWS Console and terraform destroy screenshots go here:
+### Apply → verify → destroy
+
+The stack was applied with a dedicated, temporary IAM user (`clinicdesk-capstone`) and torn down right after the screenshots were taken.
+
+`terraform apply`: **60 added**. The EKS control plane took 8m25s and the managed node group 1m28s.
+
 ![terraform apply](docs/screenshots/28-terraform-apply.png)
-![AWS console: VPC and EKS](docs/screenshots/29-aws-console-vpc-eks.png)
-![terraform destroy](docs/screenshots/30-terraform-destroy.png)
--->
+
+`kubectl` against the new cluster: 2 × t3.medium nodes `Ready` in two AZs, the add-ons running (VPC CNI, CoreDNS, kube-proxy, Pod Identity agent, EBS CSI driver), cluster `ACTIVE`, and 2 public + 2 private subnets:
+
+![EKS nodes and subnets](docs/screenshots/29-eks-cluster-nodes.png)
+
+AWS Console, `ap-south-1`: EKS cluster `clinicdesk-eks` is Active on Kubernetes 1.35.
+
+![AWS console EKS](docs/screenshots/30-aws-console-eks.png)
+
+AWS Console: VPC `clinicdesk-dev-vpc` (`10.42.0.0/16`) and its resource map. It has a public and a private subnet in each of `ap-south-1a` and `ap-south-1b`, plus public and private route tables:
+
+| VPC details | Resource map |
+|---|---|
+| ![AWS console VPC](docs/screenshots/31-aws-console-vpc.png) | ![VPC resource map](docs/screenshots/31-aws-console-vpc-resource-map.png) |
+
+`terraform destroy`: everything removed, so no AWS resources are left running.
+
+![terraform destroy](docs/screenshots/32-terraform-destroy.png)
 
 ---
 
@@ -427,7 +447,7 @@ A Service selects `app=clinicdesk-backned`, which has a typo.
 | Workflow on push to `main`; pytest, frontend build, both images, GHCR, SHA tags | §7 |
 | Trivy in the pipeline, fails on HIGH/CRITICAL; findings explained | §8 |
 | `terraform init/validate/plan` | §9 |
-| VPC + EKS applied (AWS Console) and `terraform destroy` | §9 (screenshots added after the apply) |
+| VPC + EKS applied (AWS Console) and `terraform destroy` | §9 |
 | Namespace, Helm chart, pods Running, Services, `helm list`, Ingress | §10 |
 | HPA | §11 |
 | `/metrics`, Prometheus target `UP`, Grafana dashboard | §12 |
